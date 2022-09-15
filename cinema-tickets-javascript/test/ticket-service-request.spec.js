@@ -6,7 +6,7 @@ describe('TicketService', () => {
     it('should throw an error if account ID is undefined', () => {
       const service = new TicketService();
       expect(() => {
-        service.purchaseTickets(new TicketTypeRequest('ADULT', 5));
+        service.purchaseTickets(undefined, new TicketTypeRequest('ADULT', 5));
       }).toThrow('Invalid account id');
     });
   });
