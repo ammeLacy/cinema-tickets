@@ -27,7 +27,17 @@ describe('TicketService', () => {
         service.purchaseTickets('1', new TicketTypeRequest('ADULT', 5));
       }).toThrow('Invalid account id');
     });
-    
+    it('should throw an error if there are more than 20 tickets requestd', () => {
+      const service = new TicketService();
+      expect(() => {
+        service.purchaseTickets(
+          42,
+          new TicketTypeRequest("ADULT", 19),
+          new TicketTypeRequest("CHILD", 5)
+        );
+      }).toThrow("Max of 20 tickets at a time");
+      
+    });
  
   });
 });
