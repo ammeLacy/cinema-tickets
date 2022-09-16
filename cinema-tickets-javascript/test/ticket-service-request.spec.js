@@ -9,6 +9,12 @@ describe('TicketService', () => {
         service.purchaseTickets(undefined, new TicketTypeRequest('ADULT', 5));
       }).toThrow('Invalid account id');
     });
+    it('should throw an error if account ID is less than 1', () => {
+      const service = new TicketService();
+      expect(() => {
+        service.purchaseTickets(-1, new TicketTypeRequest('ADULT', 5));
+      }).toThrow('Invalid account id');
+    });
     it('should throw an error if less than 2 arguements are passed to it', () => {
       const service = new TicketService();
       expect(() => {
