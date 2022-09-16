@@ -11,15 +11,21 @@ export default class TicketService {
       throw new InvalidPurchaseException('Insufficient arguements');
     }
   }
+  
+  _isValidAccountId(accountId) {
+    if (!Number.isInteger(accountId) || !accountId || accountId < 1) {
+      throw new InvalidPurchaseException('Invalid account id');
+    }
+  }
 
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
     
     this._areSufficientParams(ticketTypeRequests);
-    if (!Number.isInteger(accountId) ||!accountId || accountId < 1 ) {
-      throw new InvalidPurchaseException('Invalid account id');
-    }
+    this._isValidAccountId(accountId);
   }
 
  
+
+  
 }
