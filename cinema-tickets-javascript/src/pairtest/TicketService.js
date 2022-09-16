@@ -23,9 +23,13 @@ export default class TicketService {
     
     this._areSufficientParams(ticketTypeRequests);
     this._isValidAccountId(accountId);
+    
+    let totalNumberOfTickets = 0;
+    ticketTypeRequests.forEach((ticket) => {totalNumberOfTickets+= ticket.getNoOfTickets()}) 
+    
+    if (totalNumberOfTickets > 20) {
+      throw new InvalidPurchaseException('Max of 20 tickets at a time');
+    }
+    
   }
-
- 
-
-  
 }

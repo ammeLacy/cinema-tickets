@@ -32,10 +32,10 @@ describe('TicketService', () => {
       expect(() => {
         service.purchaseTickets(
           42,
-          new TicketTypeRequest("ADULT", 19),
-          new TicketTypeRequest("CHILD", 5)
+          new TicketTypeRequest('ADULT', 19),
+          new TicketTypeRequest('CHILD', 5)
         );
-      }).toThrow("Max of 20 tickets at a time");
+      }).toThrow('Max of 20 tickets at a time');
       
     });
  
