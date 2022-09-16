@@ -25,10 +25,18 @@ export default class TicketService {
     this._isValidAccountId(accountId);
     
     let totalNumberOfTickets = 0;
-    ticketTypeRequests.forEach((ticket) => {totalNumberOfTickets+= ticket.getNoOfTickets()}) 
+    const ticketTypes = [];
+    
+    ticketTypeRequests.forEach((ticket) => {totalNumberOfTickets+= ticket.getNoOfTickets();
+      ticketTypes.push(ticket.getTicketType());
+    }) 
+
     
     if (totalNumberOfTickets > 20) {
       throw new InvalidPurchaseException('Max of 20 tickets at a time');
+    }
+    if (!ticketTypes.includes('ADULT')) {
+      throw new InvalidPurchaseException('Infant tickets cannot be purchased without an Adult ticket');
     }
     
   }
