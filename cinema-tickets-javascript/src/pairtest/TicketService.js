@@ -9,11 +9,11 @@ export default class TicketService {
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
     
-    if (!accountId || accountId < 1) {
-      throw new InvalidPurchaseException('Invalid account id');
-    }
     if (ticketTypeRequests.length === 0) {
       throw new InvalidPurchaseException('Insufficient arguements');
+    }
+    if (!Number.isInteger(accountId) ||!accountId || accountId < 1 ) {
+      throw new InvalidPurchaseException('Invalid account id');
     }
   }
 }
