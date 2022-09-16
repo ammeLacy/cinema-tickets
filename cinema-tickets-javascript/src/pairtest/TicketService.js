@@ -9,7 +9,7 @@ export default class TicketService {
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
     
-    if (!accountId) {
+    if (!accountId || accountId < 1) {
       throw new InvalidPurchaseException('Invalid account id');
     }
     if (ticketTypeRequests.length === 0) {
