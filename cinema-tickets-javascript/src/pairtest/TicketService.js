@@ -36,7 +36,7 @@ export default class TicketService {
       throw new InvalidPurchaseException('Max of 20 tickets at a time');
     }
     if (!ticketTypes.includes('ADULT')) {
-      throw new InvalidPurchaseException('Infant tickets cannot be purchased without an Adult ticket');
+      throw new InvalidPurchaseException('Infant or child tickets cannot be purchased without an Adult ticket');
     }
     
   }
