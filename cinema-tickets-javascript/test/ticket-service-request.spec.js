@@ -44,7 +44,7 @@ describe('TicketService', () => {
           42,
           new TicketTypeRequest('INFANT', 5)
         );
-      }).toThrow('Infant tickets cannot be purchased without an Adult ticket');      
+      }).toThrow('Infant or child tickets cannot be purchased without an Adult ticket');      
     });
     it('should throw an error if infant tickets are purchased with out an adult ticket', () => {
       const service = new TicketService();
