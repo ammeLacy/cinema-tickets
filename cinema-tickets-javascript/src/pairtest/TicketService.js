@@ -9,6 +9,10 @@ export default class TicketService {
    * Should only have private methods other than the one below.
    */
   
+  constructor () {
+    this.#paymentService = this.#paymentService;
+  }
+  
   _areSufficientParams(ticketTypeRequests) {
     if (ticketTypeRequests.length === 0) {
       throw new InvalidPurchaseException('Insufficient arguements');
@@ -36,9 +40,17 @@ export default class TicketService {
     }
     if (!ticketTypes.includes('ADULT')) {
       throw new InvalidPurchaseException('Infant or child tickets cannot be purchased without an Adult ticket');
-    }
+    } 
+  }
+
+  purchaseTickets(accountId, ...ticketTypeRequests) {
+    // throws InvalidPurchaseException
     
-  /**
+    this._areSufficientParams(ticketTypeRequests);
+    this._isValidAccountId(accountId);  
+    this._validateTickets(ticketTypeRequests);
+    
+      /**
    * Added logic due to business requirement that infants
    * are not allocated a seat as they sit on an adults lap. 
    * Throw error at this point as have the information to
@@ -58,18 +70,22 @@ export default class TicketService {
     if (ticketsPerCategory.ADULT < ticketsPerCategory.INFANT) {
       throw new InvalidPurchaseException('More infants than adults')
     }
-  
     
+    const ticketPrices = {
+      infant: 0,
+      child: 10,
+      adult: 20
+    };
+    
+    const totalAdultTicketPrice = ticketPrices.adult * ticketsPerCategory.ADULT;
+    const totalChildPrice = ticketPrices.child * ticketsPerCategory.CHILD;
+    const totalInfantPrice = ticketPrices.infant * ticketsPerCategory.INFANT;
+    
+    const totalTicketPrice = totalAdultTicketPrice + totalChildPrice + totalInfantPrice;
+    
+    this.#paymentService.makePayment(accountId, totalTicketPrice)
   }
 
-  purchaseTickets(accountId, ...ticketTypeRequests) {
-    // throws InvalidPurchaseException
-    
-    this._areSufficientParams(ticketTypeRequests);
-    this._isValidAccountId(accountId);  
-    this._validateTickets(ticketTypeRequests);
-    this.#paymentService.makePayment(accountId, 42)
-  }
-
+ 
   
 }
