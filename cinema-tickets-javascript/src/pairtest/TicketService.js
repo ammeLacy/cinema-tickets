@@ -42,6 +42,21 @@ export default class TicketService {
       throw new InvalidPurchaseException('Infant or child tickets cannot be purchased without an Adult ticket');
     } 
   }
+  
+  _calculateTotalTicketCost(ticketsPerCategory) {
+    const ticketPrices = {
+      infant: 0,
+      child: 10,
+      adult: 20
+    };
+
+    const totalAdultTicketPrice = ticketPrices.adult * ticketsPerCategory.ADULT;
+    const totalChildPrice = ticketPrices.child * ticketsPerCategory.CHILD;
+    const totalInfantPrice = ticketPrices.infant * ticketsPerCategory.INFANT;
+
+    const totalTicketPrice = totalAdultTicketPrice + totalChildPrice + totalInfantPrice;
+    return totalTicketPrice;
+  }
 
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
@@ -57,7 +72,6 @@ export default class TicketService {
    * avoid unecessary calculation, and calls to 
    * payment or seat reservation services.
    */
-
     const ticketsPerCategory = {};
     ticketTypeRequests.forEach((ticket) => {
       if (ticketsPerCategory.hasOwnProperty(ticket.getTicketType())) {
@@ -71,21 +85,12 @@ export default class TicketService {
       throw new InvalidPurchaseException('More infants than adults')
     }
     
-    const ticketPrices = {
-      infant: 0,
-      child: 10,
-      adult: 20
-    };
-    
-    const totalAdultTicketPrice = ticketPrices.adult * ticketsPerCategory.ADULT;
-    const totalChildPrice = ticketPrices.child * ticketsPerCategory.CHILD;
-    const totalInfantPrice = ticketPrices.infant * ticketsPerCategory.INFANT;
-    
-    const totalTicketPrice = totalAdultTicketPrice + totalChildPrice + totalInfantPrice;
-    
+    const totalTicketPrice = this._calculateTotalTicketCost(ticketsPerCategory);   
     this.#paymentService.makePayment(accountId, totalTicketPrice)
   }
 
  
+  
+
   
 }
