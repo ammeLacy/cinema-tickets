@@ -102,7 +102,13 @@ export default class TicketService {
     
     const totalSeatsToReserve = ticketsPerCategory.ADULT + ticketsPerCategory.CHILD;
     
-    this.#seatReservationService.reserveSeat(accountId, totalSeatsToReserve);
+
+    if (totalSeatsToReserve === 0) {
+      throw new InvalidPurchaseException('Zero tickets have been requested');
+    } 
+    else {
+      this.#seatReservationService.reserveSeat(accountId, totalSeatsToReserve);
+    }
     
   }
 }
