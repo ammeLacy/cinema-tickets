@@ -17,27 +17,33 @@ export default class TicketService {
       throw new TypeError('Invalid account id');
     }
   }
-
-  purchaseTickets(accountId, ...ticketTypeRequests) {
-    // throws InvalidPurchaseException
-    
-    this._areSufficientParams(ticketTypeRequests);
-    this._isValidAccountId(accountId);
-    
+  
+  _validateTickets(ticketTypeRequests) {
     let totalNumberOfTickets = 0;
     const ticketTypes = [];
-    
-    ticketTypeRequests.forEach((ticket) => {totalNumberOfTickets+= ticket.getNoOfTickets();
-      ticketTypes.push(ticket.getTicketType());
-    }) 
 
-    
+    ticketTypeRequests.forEach((ticket) => {
+      totalNumberOfTickets += ticket.getNoOfTickets();
+      ticketTypes.push(ticket.getTicketType());
+    });
+
+
     if (totalNumberOfTickets > 20) {
       throw new InvalidPurchaseException('Max of 20 tickets at a time');
     }
     if (!ticketTypes.includes('ADULT')) {
       throw new InvalidPurchaseException('Infant or child tickets cannot be purchased without an Adult ticket');
     }
+  }
+
+  purchaseTickets(accountId, ...ticketTypeRequests) {
+    // throws InvalidPurchaseException
+    
+    this._areSufficientParams(ticketTypeRequests);
+    this._isValidAccountId(accountId);  
+    this._validateTickets(ticketTypeRequests);
     
   }
+
+  
 }
