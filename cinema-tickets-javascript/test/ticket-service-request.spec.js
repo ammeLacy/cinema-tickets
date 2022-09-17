@@ -61,5 +61,15 @@ describe('TicketService', () => {
         );
       }).toThrow('Infant or child tickets cannot be purchased without an Adult ticket');      
       });
+      it('should throw an error if there are more infant tickets than adults', () => {
+        const service = new TicketService();
+        expect(() => {
+          service.purchaseTickets(
+            42,
+            new TicketTypeRequest('ADULT', 1),
+            new TicketTypeRequest('INFANT', 2)
+          );
+        }).toThrow('More infants than adults');
+      });
     });
   });
