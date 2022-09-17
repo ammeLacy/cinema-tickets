@@ -96,15 +96,13 @@ export default class TicketService {
     const ticketsPerCategory = this._groupAndCountTickets(ticketTypeRequests);
     
     const totalTicketPrice = this._calculateTotalTicketCost(ticketsPerCategory);   
+    
     this.#paymentService.makePayment(accountId, totalTicketPrice)
     
-    this.#seatReservationService.reserveSeat(accountId, 5);
+    
+    const totalSeatsToReserve = ticketsPerCategory.ADULT + ticketsPerCategory.CHILD;
+    
+    this.#seatReservationService.reserveSeat(accountId, totalSeatsToReserve);
     
   }
-
-  
-
-  
-
-
 }
