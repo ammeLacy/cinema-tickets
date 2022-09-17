@@ -84,6 +84,16 @@ export default class TicketService {
     const totalTicketPrice = totalAdultTicketPrice + totalChildPrice + totalInfantPrice;
     return totalTicketPrice;
   }
+  
+  _calculateTotalNumberOfSeats(ticketsPerCategory){
+    const totalSeatsToReserve = ticketsPerCategory.ADULT + ticketsPerCategory.CHILD;
+    if (totalSeatsToReserve === 0) {
+      throw new InvalidPurchaseException('Zero tickets have been requested');
+    }
+    else {
+      return totalSeatsToReserve;
+    }
+  }
 
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
@@ -92,23 +102,14 @@ export default class TicketService {
     this._isValidAccountId(accountId);  
     this._validateTickets(ticketTypeRequests);
     
-  
     const ticketsPerCategory = this._groupAndCountTickets(ticketTypeRequests);
     
     const totalTicketPrice = this._calculateTotalTicketCost(ticketsPerCategory);   
     
     this.#paymentService.makePayment(accountId, totalTicketPrice)
     
-    
-    const totalSeatsToReserve = ticketsPerCategory.ADULT + ticketsPerCategory.CHILD;
-    
-
-    if (totalSeatsToReserve === 0) {
-      throw new InvalidPurchaseException('Zero tickets have been requested');
-    } 
-    else {
-      this.#seatReservationService.reserveSeat(accountId, totalSeatsToReserve);
-    }
-    
+    const totalSeatsToReserve = this._calculateTotalNumberOfSeats(ticketsPerCategory);
+  
+    this.#seatReservationService.reserveSeat(accountId, totalSeatsToReserve);  
   }
 }
