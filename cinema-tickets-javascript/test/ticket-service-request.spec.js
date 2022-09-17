@@ -1,5 +1,27 @@
 import TicketService from '../src/pairtest/TicketService';
 import TicketTypeRequest from '../src/pairtest/lib/TicketTypeRequest';
+import TicketPaymentService from '../src/thirdparty/paymentgateway/TicketPaymentService'
+
+jest.mock('../src/thirdparty/paymentgateway/TicketPaymentService')
+
+beforeEach(() => {
+  TicketPaymentService.mockClear();
+});
+/*
+import SoundPlayer from './sound-player';
+import SoundPlayerConsumer from './sound-player-consumer';
+jest.mock('./sound-player'); // SoundPlayer is now a mock constructor
+
+beforeEach(() => {
+  // Clear all instances and calls to constructor and all methods:
+  SoundPlayer.mockClear();
+});
+
+it('We can check if the consumer called the class constructor', () => {
+  const soundPlayerConsumer = new SoundPlayerConsumer();
+  expect(SoundPlayer).toHaveBeenCalledTimes(1);
+});
+*/
 
 describe('TicketService', () => {
   describe('PurchaseTickets', () => {
@@ -71,5 +93,16 @@ describe('TicketService', () => {
           );
         }).toThrow('More infants than adults');
       });
+      it('should call the ticket payment service with the account Id and correct amount for therequested tickets', () => {
+        const service = new TicketService();
+        service.purchaseTickets(42, new TicketTypeRequest('ADULT', 2),
+        new TicketTypeRequest('CHILD', 3),
+        new TicketTypeRequest('INFANT', 1)
+        )
+        const mockTSInstance = TicketPaymentService.mock.instances[0];
+        const mockMethod = mockTSInstance.makePayment;
+        expect(mockMethod).toHaveBeenCalledTimes(1);
+      });
     });
   });
+
