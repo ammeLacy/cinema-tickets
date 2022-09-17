@@ -1,13 +1,17 @@
 import TicketService from '../src/pairtest/TicketService';
 import TicketTypeRequest from '../src/pairtest/lib/TicketTypeRequest';
 import TicketPaymentService from '../src/thirdparty/paymentgateway/TicketPaymentService';
+import SeatReservationService from '../src/thirdparty/seatbooking/SeatReservationService';
 
 
 jest.mock('../src/thirdparty/paymentgateway/TicketPaymentService');
+jest.mock('../src/thirdparty/seatbooking/SeatReservationService');
 
 
 beforeEach(() => {
   TicketPaymentService.mockClear();
+  SeatReservationService.mockClear();
+  
 });
 
 describe('TicketService', () => {
@@ -90,6 +94,16 @@ describe('TicketService', () => {
         const mockMakePayment = mockTSInstance.makePayment;
         expect(mockMakePayment).toHaveBeenCalledTimes(1);
         expect(mockMakePayment).toHaveBeenCalledWith(42,70)
+      });
+      it('should call the seat reservation service with the account Id and correct amount of tickets', () => {
+        const service = new TicketService();
+        service.purchaseTickets(42, new TicketTypeRequest('ADULT', 2),
+        new TicketTypeRequest('CHILD', 3),
+        new TicketTypeRequest('INFANT', 1)
+        )
+        const mockSRInstance = SeatReservationService.mock.instances[0];
+        const mockReserveSeat = mockSRInstance.reserveSeat;
+        expect(mockReserveSeat).toHaveBeenCalledTimes(1);
       });
     });
   });
