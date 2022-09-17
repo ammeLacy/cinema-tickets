@@ -112,7 +112,7 @@ describe('TicketService', () => {
           service.purchaseTickets(
             42,
             new TicketTypeRequest('ADULT', 0),
-            new TicketTypeRequest('INFANT', 0)
+            new TicketTypeRequest('CHILD', 0)
           );
         }).toThrow('Zero tickets have been requested');
       });
