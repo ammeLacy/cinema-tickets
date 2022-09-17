@@ -34,6 +34,29 @@ export default class TicketService {
     if (!ticketTypes.includes('ADULT')) {
       throw new InvalidPurchaseException('Infant or child tickets cannot be purchased without an Adult ticket');
     }
+    
+  /**
+   * Added logic due to business requirement that infants
+   * are not allocated a seat as they sit on an adults lap. 
+   * Throw error at this point as have the information to
+   * avoid unecessary calculation, and calls to 
+   * payment or seat reservation services.
+   */
+
+    const ticketsPerCategory = {};
+    ticketTypeRequests.forEach((ticket) => {
+      if (ticketsPerCategory.hasOwnProperty(ticket.getTicketType())) {
+        ticketsPerCategory[ticket.getTicketType()] += ticket.getNoOfTickets();
+      }
+      else {
+        ticketsPerCategory[ticket.getTicketType()]=ticket.getNoOfTickets()
+      }
+    })
+    if (ticketsPerCategory.ADULT < ticketsPerCategory.INFANT) {
+      throw new InvalidPurchaseException('More infants than adults')
+    }
+  
+    
   }
 
   purchaseTickets(accountId, ...ticketTypeRequests) {
