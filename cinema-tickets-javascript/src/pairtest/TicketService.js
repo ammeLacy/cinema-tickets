@@ -1,4 +1,3 @@
-import TicketTypeRequest from './lib/TicketTypeRequest.js';
 import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
 import TicketPaymentService from '../thirdparty/paymentgateway/TicketPaymentService.js';
 import SeatReservationService from '../thirdparty/seatbooking/SeatReservationService.js';
@@ -8,9 +7,6 @@ export default class TicketService {
   #paymentService = new TicketPaymentService();
   #seatReservationService = new SeatReservationService();
   
-  /**
-   * Should only have private methods other than the one below.
-   */
   
   constructor () {
     this.#paymentService = this.#paymentService;
@@ -29,30 +25,25 @@ export default class TicketService {
     }
   }
   
-  _validateTickets(ticketTypeRequests) {
-    let totalNumberOfTickets = 0;
-    const ticketTypes = [];
-
-    ticketTypeRequests.forEach((ticket) => {
-      totalNumberOfTickets += ticket.getNoOfTickets();
-      ticketTypes.push(ticket.getTicketType());
-    });
-
-
-    if (totalNumberOfTickets > 20) {
-      throw new InvalidPurchaseException('Max of 20 tickets at a time');
+  /**
+   * Added logic due to business requirement that infants are not allocated a seat as they
+   * sit on an adults lap that number of infants is equal to or less than the number of adults.
+   */
+  _validateTickets(ticketsPerCategory) {
+    if (ticketsPerCategory.ADULT < ticketsPerCategory.INFANT) {
+      throw new InvalidPurchaseException('More infants than adults');
     }
-    if (!ticketTypes.includes('ADULT')) {
+    const totalNumberOfTickets = Object.values(ticketsPerCategory).reduce(
+      (previousValue, currentValue) => previousValue + currentValue
+    );
+    const maxAllowedTickets = 20;
+    if (totalNumberOfTickets > maxAllowedTickets) {
+      throw new InvalidPurchaseException(`Max of ${maxAllowedTickets} tickets at a time`);
+    }
+    if (!ticketsPerCategory.hasOwnProperty('ADULT')) {
       throw new InvalidPurchaseException('Infant or child tickets cannot be purchased without an Adult ticket');
     } 
   }
-  /**
-   * Added logic due to business requirement that infantsare not allocated a seat as they s
-   * sit on an adults  lap. 
-   * Throw error at this point as have the
-   * information to avoid unecessary calculation
-   * and calls to  payment or seat reservation services.
-   */
   
   _groupAndCountTickets(ticketTypeRequests) {
     const ticketsPerCategory = {};
@@ -64,12 +55,15 @@ export default class TicketService {
         ticketsPerCategory[ticket.getTicketType()] = ticket.getNoOfTickets();
       }
     });
-    if (ticketsPerCategory.ADULT < ticketsPerCategory.INFANT) {
-      throw new InvalidPurchaseException('More infants than adults');
-    }
     return ticketsPerCategory;
   }
   
+  _getOrZero(ticketsPerCategory, category) {
+    if(ticketsPerCategory[category] === undefined) {
+      return 0;
+    }
+    return ticketsPerCategory[category];
+  }
   _calculateTotalTicketCost(ticketsPerCategory) {
     const ticketPrices = {
       infant: 0,
@@ -77,32 +71,33 @@ export default class TicketService {
       adult: 20
     };
 
-    const totalAdultTicketPrice = ticketPrices.adult * ticketsPerCategory.ADULT;
-    const totalChildPrice = ticketPrices.child * ticketsPerCategory.CHILD;
-    const totalInfantPrice = ticketPrices.infant * ticketsPerCategory.INFANT;
+    const totalAdultTicketPrice = ticketPrices.adult * this._getOrZero(ticketsPerCategory, 'ADULT');
+    const totalChildPrice = ticketPrices.child * this._getOrZero(ticketsPerCategory, 'CHILD');
+    const totalInfantPrice = ticketPrices.infant * this._getOrZero(ticketsPerCategory, 'INFANT');
 
     const totalTicketPrice = totalAdultTicketPrice + totalChildPrice + totalInfantPrice;
     return totalTicketPrice;
   }
   
   _calculateTotalNumberOfSeats(ticketsPerCategory){
-    const totalSeatsToReserve = ticketsPerCategory.ADULT + ticketsPerCategory.CHILD;
+    const totalSeatsToReserve = this._getOrZero(ticketsPerCategory, 'ADULT') + this._getOrZero(ticketsPerCategory, 'CHILD');
     if (totalSeatsToReserve === 0) {
       throw new InvalidPurchaseException('Zero tickets have been requested');
     }
-    else {
-      return totalSeatsToReserve;
-    }
+    return totalSeatsToReserve;
   }
 
+  /**
+   * Should only have private methods other than the one below.
+   */
   purchaseTickets(accountId, ...ticketTypeRequests) {
     // throws InvalidPurchaseException
     
     this._areSufficientParams(ticketTypeRequests);
-    this._isValidAccountId(accountId);  
-    this._validateTickets(ticketTypeRequests);
+    this._isValidAccountId(accountId);
     
     const ticketsPerCategory = this._groupAndCountTickets(ticketTypeRequests);
+    this._validateTickets(ticketsPerCategory);
     
     const totalTicketPrice = this._calculateTotalTicketCost(ticketsPerCategory);   
     
