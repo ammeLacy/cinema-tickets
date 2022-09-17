@@ -42,6 +42,29 @@ export default class TicketService {
       throw new InvalidPurchaseException('Infant or child tickets cannot be purchased without an Adult ticket');
     } 
   }
+  /**
+   * Added logic due to business requirement that infantsare not allocated a seat as they s
+   * sit on an adults  lap. 
+   * Throw error at this point as have the
+   * information to avoid unecessary calculation
+   * and calls to payment or seat reservation services.
+   */
+  
+  _groupAndCountTickets(ticketTypeRequests) {
+    const ticketsPerCategory = {};
+    ticketTypeRequests.forEach((ticket) => {
+      if (ticketsPerCategory.hasOwnProperty(ticket.getTicketType())) {
+        ticketsPerCategory[ticket.getTicketType()] += ticket.getNoOfTickets();
+      }
+      else {
+        ticketsPerCategory[ticket.getTicketType()] = ticket.getNoOfTickets();
+      }
+    });
+    if (ticketsPerCategory.ADULT < ticketsPerCategory.INFANT) {
+      throw new InvalidPurchaseException('More infants than adults');
+    }
+    return ticketsPerCategory;
+  }
   
   _calculateTotalTicketCost(ticketsPerCategory) {
     const ticketPrices = {
@@ -65,25 +88,8 @@ export default class TicketService {
     this._isValidAccountId(accountId);  
     this._validateTickets(ticketTypeRequests);
     
-      /**
-   * Added logic due to business requirement that infants
-   * are not allocated a seat as they sit on an adults lap. 
-   * Throw error at this point as have the information to
-   * avoid unecessary calculation, and calls to 
-   * payment or seat reservation services.
-   */
-    const ticketsPerCategory = {};
-    ticketTypeRequests.forEach((ticket) => {
-      if (ticketsPerCategory.hasOwnProperty(ticket.getTicketType())) {
-        ticketsPerCategory[ticket.getTicketType()] += ticket.getNoOfTickets();
-      }
-      else {
-        ticketsPerCategory[ticket.getTicketType()]=ticket.getNoOfTickets()
-      }
-    })
-    if (ticketsPerCategory.ADULT < ticketsPerCategory.INFANT) {
-      throw new InvalidPurchaseException('More infants than adults')
-    }
+  
+    const ticketsPerCategory = this._groupAndCountTickets(ticketTypeRequests);
     
     const totalTicketPrice = this._calculateTotalTicketCost(ticketsPerCategory);   
     this.#paymentService.makePayment(accountId, totalTicketPrice)
@@ -93,4 +99,6 @@ export default class TicketService {
   
 
   
+
+
 }
