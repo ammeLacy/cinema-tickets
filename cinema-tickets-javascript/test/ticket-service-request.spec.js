@@ -93,7 +93,7 @@ describe('TicketService', () => {
         const mockTSInstance = TicketPaymentService.mock.instances[0];
         const mockMakePayment = mockTSInstance.makePayment;
         expect(mockMakePayment).toHaveBeenCalledTimes(1);
-        expect(mockMakePayment).toHaveBeenCalledWith(42,70)
+        expect(mockMakePayment).toHaveBeenCalledWith(42,70);
       });
       it('should call the seat reservation service with the account Id and correct amount of tickets', () => {
         const service = new TicketService();
@@ -104,6 +104,7 @@ describe('TicketService', () => {
         const mockSRInstance = SeatReservationService.mock.instances[0];
         const mockReserveSeat = mockSRInstance.reserveSeat;
         expect(mockReserveSeat).toHaveBeenCalledTimes(1);
+        expect(mockReserveSeat).toHaveBeenCalledWith(42,5);
       });
     });
   });
