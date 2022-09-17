@@ -1,8 +1,10 @@
 import TicketService from '../src/pairtest/TicketService';
 import TicketTypeRequest from '../src/pairtest/lib/TicketTypeRequest';
-import TicketPaymentService from '../src/thirdparty/paymentgateway/TicketPaymentService'
+import TicketPaymentService from '../src/thirdparty/paymentgateway/TicketPaymentService';
 
-jest.mock('../src/thirdparty/paymentgateway/TicketPaymentService')
+
+jest.mock('../src/thirdparty/paymentgateway/TicketPaymentService');
+
 
 beforeEach(() => {
   TicketPaymentService.mockClear();
@@ -78,15 +80,16 @@ describe('TicketService', () => {
           );
         }).toThrow('More infants than adults');
       });
-      it('should call the ticket payment service with the account Id and correct amount for therequested tickets', () => {
+      it('should call the ticket payment service with the account Id and correct amount for the requested tickets', () => {
         const service = new TicketService();
         service.purchaseTickets(42, new TicketTypeRequest('ADULT', 2),
         new TicketTypeRequest('CHILD', 3),
         new TicketTypeRequest('INFANT', 1)
         )
         const mockTSInstance = TicketPaymentService.mock.instances[0];
-        const mockMethod = mockTSInstance.makePayment;
-        expect(mockMethod).toHaveBeenCalledTimes(1);
+        const mockMakePayment = mockTSInstance.makePayment;
+        expect(mockMakePayment).toHaveBeenCalledTimes(1);
+        expect(mockMakePayment).toHaveBeenCalledWith(42,70)
       });
     });
   });
