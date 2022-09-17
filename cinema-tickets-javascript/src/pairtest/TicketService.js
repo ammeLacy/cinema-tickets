@@ -1,16 +1,20 @@
 import TicketTypeRequest from './lib/TicketTypeRequest.js';
 import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
 import TicketPaymentService from '../thirdparty/paymentgateway/TicketPaymentService.js';
+import SeatReservationService from '../thirdparty/seatbooking/SeatReservationService.js';
 
 export default class TicketService {
   
   #paymentService = new TicketPaymentService();
+  #seatReservationService = new SeatReservationService();
+  
   /**
    * Should only have private methods other than the one below.
    */
   
   constructor () {
     this.#paymentService = this.#paymentService;
+    this.#seatReservationService = this.#seatReservationService;
   }
   
   _areSufficientParams(ticketTypeRequests) {
@@ -47,7 +51,7 @@ export default class TicketService {
    * sit on an adults  lap. 
    * Throw error at this point as have the
    * information to avoid unecessary calculation
-   * and calls to payment or seat reservation services.
+   * and calls to  payment or seat reservation services.
    */
   
   _groupAndCountTickets(ticketTypeRequests) {
@@ -93,9 +97,11 @@ export default class TicketService {
     
     const totalTicketPrice = this._calculateTotalTicketCost(ticketsPerCategory);   
     this.#paymentService.makePayment(accountId, totalTicketPrice)
+    
+    this.#seatReservationService.reserveSeat(accountId, 5);
+    
   }
 
- 
   
 
   
