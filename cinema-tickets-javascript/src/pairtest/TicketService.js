@@ -14,7 +14,7 @@ export default class TicketService {
   
   _isValidAccountId(accountId) {
     if (!Number.isInteger(accountId) || !accountId || accountId < 1) {
-      throw new InvalidPurchaseException('Invalid account id');
+      throw new TypeError('Invalid account id');
     }
   }
 
