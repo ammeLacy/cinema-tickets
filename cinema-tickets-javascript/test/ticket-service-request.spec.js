@@ -106,5 +106,15 @@ describe('TicketService', () => {
         expect(mockReserveSeat).toHaveBeenCalledTimes(1);
         expect(mockReserveSeat).toHaveBeenCalledWith(42,5);
       });
+      it('should throw an error if total tickets equals 0', () => {
+        const service = new TicketService();
+        expect(() => {
+          service.purchaseTickets(
+            42,
+            new TicketTypeRequest('ADULT', 0),
+            new TicketTypeRequest('INFANT', 0)
+          );
+        }).toThrow('Zero tickets have been requested');
+      });
     });
   });
