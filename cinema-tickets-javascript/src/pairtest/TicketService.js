@@ -1,7 +1,10 @@
 import TicketTypeRequest from './lib/TicketTypeRequest.js';
 import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
+import TicketPaymentService from '../thirdparty/paymentgateway/TicketPaymentService.js';
 
 export default class TicketService {
+  
+  #paymentService = new TicketPaymentService();
   /**
    * Should only have private methods other than the one below.
    */
@@ -65,7 +68,7 @@ export default class TicketService {
     this._areSufficientParams(ticketTypeRequests);
     this._isValidAccountId(accountId);  
     this._validateTickets(ticketTypeRequests);
-    
+    this.#paymentService.makePayment(accountId, 42)
   }
 
   
