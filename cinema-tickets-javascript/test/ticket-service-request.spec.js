@@ -3,15 +3,12 @@ import TicketTypeRequest from '../src/pairtest/lib/TicketTypeRequest';
 import TicketPaymentService from '../src/thirdparty/paymentgateway/TicketPaymentService';
 import SeatReservationService from '../src/thirdparty/seatbooking/SeatReservationService';
 
-
 jest.mock('../src/thirdparty/paymentgateway/TicketPaymentService');
 jest.mock('../src/thirdparty/seatbooking/SeatReservationService');
 
-
 beforeEach(() => {
   TicketPaymentService.mockClear();
-  SeatReservationService.mockClear();
-  
+  SeatReservationService.mockClear();  
 });
 
 describe('TicketService', () => {
@@ -33,12 +30,6 @@ describe('TicketService', () => {
       expect(() => {
         service.purchaseTickets(-1, new TicketTypeRequest('ADULT', 5));
       }).toThrow('Invalid account id');
-      });
-      it('should throw an error if account ID is not a number', () => {
-      const service = new TicketService();
-      expect(() => {
-        service.purchaseTickets('1', new TicketTypeRequest('ADULT', 5));
-      }).toThrow(TypeError);      
       });
       it('should provide an error message when account ID is not a number', () => {
       const service = new TicketService();
@@ -65,7 +56,7 @@ describe('TicketService', () => {
         );
       }).toThrow('Infant or child tickets cannot be purchased without an Adult ticket');      
       });
-      it('should throw an error if infant tickets are purchased with out an adult ticket', () => {
+      it('should throw an error if child tickets are purchased with out an adult ticket', () => {
       const service = new TicketService();
       expect(() => {
         service.purchaseTickets(
@@ -86,7 +77,8 @@ describe('TicketService', () => {
       });
       it('should call the ticket payment service with the account Id and correct amount for the requested tickets', () => {
         const service = new TicketService();
-        service.purchaseTickets(42, new TicketTypeRequest('ADULT', 2),
+        service.purchaseTickets(42, 
+        new TicketTypeRequest('ADULT', 2),
         new TicketTypeRequest('CHILD', 3),
         new TicketTypeRequest('INFANT', 1)
         )
